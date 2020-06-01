@@ -1,3 +1,4 @@
+// starfield generation
 void starfield(int speed){
   
   strokeWeight(2);

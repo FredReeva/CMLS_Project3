@@ -1,37 +1,37 @@
 import netP5.*;
 import oscP5.*;
 
+
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
-int end = 1000;
-
+// variables for position
 float xPos=300;
 float yPos=200;
 float xPrev=300;
 float yPrev=200;
-
+// colours read
 int selCol = 1;
+// accelerometer read
 float readX;
 float readY;
+// istantaneous acceleration
 float intensity;
-
-int starting = 0;
-int cycles = 10;
-
+// colours
 float rCol=255,gCol=0,bCol=0;
+// fade animation stuff
 int ANIMATION_LENGTH = 150;
 float alpha = 0;
 float delta = 255/ANIMATION_LENGTH;
 float saber = 0;
-int speed = 1;
-
 int index = 0;
-
+// starfield speed
+int speed = 1;
+// vectors for sword
 PVector laserTip = new PVector();
 PVector previousTip = new PVector();
 PVector holder = new PVector();
-
+// stars
 Star[] stars = new Star[1000];
 
 public void settings() {
@@ -43,6 +43,7 @@ void setup() {
   oscP5 = new OscP5(this,12000);
   myRemoteLocation = new NetAddress("127.0.0.1",57120);
   
+  // generate stars
   for (int i=0; i<stars.length; i++) {
     stars[i] = new Star();
   }
@@ -55,38 +56,42 @@ void draw() {
   fill(255);
   noStroke();
   
+  // starfield background
   starfield(speed);
   
+  // lightsaber vector
   laserTip.set(xPos - width/2, yPos - height*0.75);
   previousTip.set(xPrev - width/2, yPrev - height*0.75);
   holder.set(-(xPos - width/2)*0.10, -(yPos - height*0.75)*0.10);
   
-  //starting animation
-    if(saber == 1){     
+  //on/off animation + lightsaber
+    if(saber == 1){ // lightsaber is on  
       sword(laserTip.mult(index*0.02),previousTip.mult(index*0.02),holder,alpha);
       alpha = alpha + 5*delta;
-          if(alpha >= 255){
+          if(alpha >= 255){ // fading colour
          alpha = 255;
       }
-      if(index<=50){
+      if(index<=50){ // fading tip
       index = index + 1;
       }
   }
-  if(saber == 0){
+  if(saber == 0){ // lightsaber is off
     sword(laserTip.mult(index*0.02),previousTip.mult(index*0.02), holder, alpha);
     alpha -= delta;
-    if(alpha <= 0){
+    if(alpha <= 0){ // fading colour
       alpha = 0;
     }
-    if(index>0){
+    if(index>0){ // fading tip
       index = index - 1;
       }
   }
  
 }
 
+// osc messages management
 void oscEvent(OscMessage theOscMessage) {
   
+  /* Initial testing with OscHook
   //OscHook
   if(theOscMessage.checkAddrPattern("/accelerometer/raw/x")==true) {
     xPrev = xPos;
@@ -101,8 +106,11 @@ void oscEvent(OscMessage theOscMessage) {
     yPos = map(readY,0,+10,height,0);
     println("OscHook Y value: "+readY+" converted: "+yPos);
     }
+    */
     
-    // touchOSC
+    // touchOSC (receive OSC messages)
+    
+    // accelerometer
     if(theOscMessage.checkAddrPattern("/accxyz")==true) {
     
       xPrev = xPos;
@@ -111,11 +119,12 @@ void oscEvent(OscMessage theOscMessage) {
       readY = theOscMessage.get(1).floatValue();
       xPos = map(readX, -1, +1, 0, width);
       yPos = map(readY, 0, -1, height, 0);
-      println("touchOSC X value: "+readX+" converted: "+xPos);
-      println("touchOSC Y value: "+readY+" converted: "+yPos);
+      //println("touchOSC X value: "+readX+" converted: "+xPos);
+      //println("touchOSC Y value: "+readY+" converted: "+yPos);
       intensity = map(dist(xPos, yPos, xPrev, yPrev), 0, sqrt(sq(height)+sq(width)), -1.0, +1.0);
     }
     
+    // colour buttons
     if(theOscMessage.checkAddrPattern("/red")==true) {
     rCol = 255; 
     gCol = 0;
@@ -141,15 +150,17 @@ void oscEvent(OscMessage theOscMessage) {
     selCol = 4;
     }
     
+    // on off button
     if(theOscMessage.checkAddrPattern("/onoff")==true) {
     saber = theOscMessage.get(0).floatValue();
     }
     
+    // hyperspace slider
     if(theOscMessage.checkAddrPattern("/speed")==true) {
     speed = (int)theOscMessage.get(0).floatValue();
     }
     
-    // send messages to SuperCollider
+    // forward messages to SuperCollider
     OscMessage myMessage = new OscMessage("/value");
     myMessage.add(saber);
     myMessage.add(selCol);

@@ -1,3 +1,4 @@
+// stars
 class Star {
   float x;
   float y;
@@ -37,7 +38,7 @@ class Star {
     px = map(x / pz, 0, 1, 0, width);
     py = map(y / pz, 0, 1, 0, height);    
     
-    float r = map(z, 0, width, 8, 0);
+    float r = map(z, 0, width, 6, 0);
     
     ellipse(sx, sy, r, r);
     
