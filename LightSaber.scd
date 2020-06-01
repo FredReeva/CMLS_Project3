@@ -22,7 +22,6 @@ SynthDef.new(\saber, {
 	pan = Pan2.ar(car, pos:panPos, level:1);
 	filter = BLowPass.ar(pan, 300, amp*LinLin.kr(intensity,-1,1,1,0.5));
 	reverb = FreeVerb.ar(filter, mix:0.4, room:0.3, damp:0.2);
-
 	Out.ar(0, reverb*env);
 }).add
 )
