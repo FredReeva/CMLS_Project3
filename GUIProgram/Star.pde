@@ -38,6 +38,7 @@ class Star {
     py = map(y / pz, 0, 1, 0, height);    
     
     float r = map(z, 0, width, 8, 0);
+    
     ellipse(sx, sy, r, r);
     
     stroke(255);
